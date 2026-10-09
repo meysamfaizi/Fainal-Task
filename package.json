@@ -1,14 +1,17 @@
 {
-  "name": "js-task",
+  "name": "panhar-task",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A responsive Persian financial transactions dashboard.",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "server": "json-server -p 3000 ./data/db.json --watch"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "json-server": "^0.17.4"
+  "devDependencies": {
+    "vite": "^8.3.4"
   }
 }

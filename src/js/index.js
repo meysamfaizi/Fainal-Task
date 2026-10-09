@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3000/transactions";
+const DATA_URL = `${import.meta.env.BASE_URL}data/db.json`;
 
 const loadBtn = document.getElementById("loadBtn");
 const tableWrapper = document.getElementById("tableWrapper");
@@ -25,16 +25,9 @@ async function fetchTransactions() {
   const controller = new AbortController();
   activeRequest = controller;
 
-  const url = new URL(BASE_URL);
   const referenceId = searchInput.value.trim().replace(/[۰-۹٠-٩]/g, (digit) =>
     String(digit.charCodeAt(0) % 16),
   );
-
-  if (referenceId) url.searchParams.set("refId_like", referenceId);
-  if (currentSort.sort) {
-    url.searchParams.set("_sort", currentSort.sort);
-    url.searchParams.set("_order", currentSort.order);
-  }
 
   transactionsBody.replaceChildren();
   transactionsTable.hidden = true;
@@ -44,12 +37,27 @@ async function fetchTransactions() {
   showStatus("loading", "در حال دریافت تراکنش‌ها...");
 
   try {
-    const response = await fetch(url.toString(), { signal: controller.signal });
+    const response = await fetch(DATA_URL, { signal: controller.signal });
     if (!response.ok) throw new Error("Request failed");
 
-    const transactions = await response.json();
+    const data = await response.json();
     if (activeRequest !== controller || controller.signal.aborted) return;
-    if (!Array.isArray(transactions)) throw new Error("Invalid transactions");
+    if (!Array.isArray(data.transactions)) throw new Error("Invalid transactions");
+
+    let transactions = data.transactions;
+
+    if (referenceId) {
+      transactions = transactions.filter((transaction) =>
+        String(transaction.refId).includes(referenceId),
+      );
+    }
+
+    if (currentSort.sort) {
+      const direction = currentSort.order === "asc" ? 1 : -1;
+      transactions = [...transactions].sort((first, second) =>
+        (Number(first[currentSort.sort]) - Number(second[currentSort.sort])) * direction,
+      );
+    }
 
     renderTable(transactions);
   } catch (error) {
