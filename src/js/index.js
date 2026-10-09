@@ -1,6 +1,9 @@
-const DATA_URL = `${import.meta.env.BASE_URL}data/db.json`;
+const DATA_URL = import.meta.env?.BASE_URL
+  ? `${import.meta.env.BASE_URL}data/db.json`
+  : new URL("../../public/data/db.json", import.meta.url).href;
 
 const loadBtn = document.getElementById("loadBtn");
+const transactionsDialog = document.getElementById("transactionsDialog");
 const tableWrapper = document.getElementById("tableWrapper");
 const transactionsTable = document.getElementById("transactionsTable");
 const transactionsBody = document.getElementById("transactionsBody");
@@ -118,12 +121,15 @@ function renderTable(transactions) {
   showStatus("empty", transactions.length ? "" : "نتیجه‌ای یافت نشد.");
 }
 
-// Open before the existing loading handler disables the button.
-loadBtn.addEventListener("click", () => {
-  document.getElementById("transactionsDialog").showModal();
-}, { capture: true });
+function openTransactions() {
+  if (!transactionsDialog.open) {
+    transactionsDialog.showModal();
+  }
 
-loadBtn.addEventListener("click", fetchTransactions);
+  fetchTransactions();
+}
+
+loadBtn.addEventListener("click", openTransactions);
 
 searchInput.addEventListener("input", () => {
   clearTimeout(searchTimeout);
