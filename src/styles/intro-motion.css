@@ -170,7 +170,12 @@
   }
 }
 
-/* The surrounding aurora is clipped to its own layer, never to the card. */
+/* The aurora fills the viewport without adding scroll space or intercepting clicks. */
+.app {
+  position: relative;
+  z-index: 1;
+}
+
 .intro-aura {
   --aura-pointer-x: 50%;
   --aura-pointer-y: 50%;
@@ -178,18 +183,14 @@
   --aura-hue: 215;
   --aura-dx: 0px;
   --aura-dy: 0px;
-  position: absolute;
-  z-index: -3;
-  top: 50%;
-  left: 50%;
-  width: min(1100px, calc(100vw - 32px));
-  height: min(640px, 72vh);
+  position: fixed;
+  z-index: 0;
+  inset: 0;
   overflow: clip;
   contain: paint;
   pointer-events: none;
-  transform: translate(-50%, -50%);
-  mask-image: radial-gradient(ellipse, black 42%, transparent 74%);
-  -webkit-mask-image: radial-gradient(ellipse, black 42%, transparent 74%);
+  mask-image: radial-gradient(ellipse, black 48%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse, black 48%, transparent 100%);
   transition: opacity 650ms ease;
 }
 
@@ -202,46 +203,46 @@
 .aura-field {
   position: absolute;
   inset: 0;
-  opacity: calc(0.32 + var(--aura-strength) * 0.58);
+  opacity: calc(0.62 + var(--aura-strength) * 0.36);
   transform: translate(var(--aura-dx), var(--aura-dy));
   transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1), opacity 700ms ease;
 }
 
 .aura-orb {
   position: absolute;
-  width: 330px;
-  height: 330px;
+  width: clamp(380px, 48vw, 840px);
+  aspect-ratio: 1;
   border-radius: 50%;
-  filter: blur(20px);
+  filter: blur(32px);
   animation: aura-drift 12s ease-in-out infinite alternate;
 }
 
 .aura-orb--teal {
-  top: 22%;
-  left: 1%;
-  background: radial-gradient(circle, hsl(175 95% 58% / 32%), transparent 68%);
+  top: 12%;
+  left: -10%;
+  background: radial-gradient(circle, hsl(175 95% 60% / 48%), transparent 72%);
 }
 
 .aura-orb--violet {
-  top: 0;
-  right: 2%;
-  background: radial-gradient(circle, hsl(265 95% 66% / 35%), transparent 68%);
+  top: -16%;
+  right: -6%;
+  background: radial-gradient(circle, hsl(265 95% 68% / 48%), transparent 72%);
   animation-duration: 15s;
   animation-delay: -6s;
 }
 
 .aura-orb--rose {
-  bottom: -10%;
-  left: 37%;
-  background: radial-gradient(circle, hsl(325 90% 65% / 24%), transparent 68%);
+  bottom: -28%;
+  left: 32%;
+  background: radial-gradient(circle, hsl(325 90% 67% / 36%), transparent 72%);
   animation-duration: 17s;
   animation-delay: -10s;
 }
 
 .aura-ribbon {
   position: absolute;
-  width: 70%;
-  height: 48%;
+  width: 85%;
+  height: 55%;
   border: 1px solid transparent;
   border-radius: 50%;
   opacity: 0.45;
@@ -251,14 +252,14 @@
 .aura-ribbon--teal {
   top: 24%;
   left: 10%;
-  border-top-color: hsl(175 90% 72% / 45%);
+  border-top-color: hsl(175 90% 76% / 60%);
   box-shadow: 0 -5px 24px -18px hsl(175 95% 70% / 70%);
 }
 
 .aura-ribbon--violet {
   top: 27%;
   right: 8%;
-  border-bottom-color: hsl(270 95% 78% / 40%);
+  border-bottom-color: hsl(270 95% 80% / 55%);
   box-shadow: 0 5px 24px -18px hsl(270 95% 75% / 70%);
   animation-direction: alternate-reverse;
   animation-delay: -8s;
@@ -268,8 +269,8 @@
   position: absolute;
   inset: 0;
   opacity: var(--aura-strength);
-  background: radial-gradient(circle 170px at var(--aura-pointer-x) var(--aura-pointer-y),
-    hsl(var(--aura-hue) 95% 75% / 18%), transparent 75%);
+  background: radial-gradient(circle clamp(220px, 25vw, 460px) at var(--aura-pointer-x) var(--aura-pointer-y),
+    hsl(var(--aura-hue) 95% 78% / 27%), transparent 78%);
   transition: opacity 700ms ease;
 }
 
@@ -298,7 +299,7 @@
 .aura-spark:nth-child(6) { bottom: 28%; left: 20%; animation-delay: -1.5s; }
 
 @keyframes aura-drift {
-  from { transform: translate(-12px, 10px) scale(0.94); opacity: 0.55; }
+  from { transform: translate(-12px, 10px) scale(0.94); opacity: 0.75; }
   to { transform: translate(22px, -18px) scale(1.08); opacity: 1; }
 }
 
@@ -318,7 +319,7 @@ body:has(#transactionsDialog[open]) .intro-aura * {
 }
 
 body:has(#transactionsDialog[open]) .intro-aura {
-  opacity: 0;
+  opacity: 0.3;
 }
 
 @media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
@@ -328,5 +329,82 @@ body:has(#transactionsDialog[open]) .intro-aura {
 
   .intro-aura * {
     animation: none;
+  }
+}
+
+/* A gentle app-like launch and a real exit, with the native modal preserved. */
+.transactions-section {
+  transform-origin: 50% 65%;
+}
+
+.transactions-section[open] {
+  animation: modal-launch 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.transactions-section.is-closing {
+  animation: modal-dismiss 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  pointer-events: none;
+}
+
+.transactions-section::backdrop {
+  animation: backdrop-reveal 680ms ease both;
+}
+
+.transactions-section.is-closing::backdrop {
+  animation: backdrop-dismiss 420ms ease both;
+}
+
+.page-content {
+  transform-origin: 50% 25%;
+  transition: transform 680ms cubic-bezier(0.22, 1, 0.36, 1), opacity 600ms ease;
+}
+
+body:has(#transactionsDialog[open]) .page-content {
+  transform: scale(0.985);
+  opacity: 0.8;
+}
+
+body:has(#transactionsDialog.is-closing) .page-content {
+  transform: none;
+  opacity: 1;
+}
+
+body:has(#transactionsDialog.is-closing) .intro-aura {
+  opacity: 1;
+}
+
+@keyframes modal-launch {
+  from { opacity: 0; transform: translateY(64px) scale(0.88); }
+  65% { opacity: 1; transform: translateY(-2px) scale(1.006); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes modal-dismiss {
+  from {
+    opacity: var(--modal-exit-opacity, 1);
+    transform: var(--modal-exit-transform, none);
+  }
+  to { opacity: 0; transform: translateY(36px) scale(0.94); }
+}
+
+@keyframes backdrop-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes backdrop-dismiss {
+  from { opacity: var(--backdrop-exit-opacity, 1); }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transactions-section[open],
+  .transactions-section::backdrop {
+    animation: none;
+  }
+
+  .page-content,
+  body:has(#transactionsDialog[open]) .page-content {
+    transform: none;
   }
 }

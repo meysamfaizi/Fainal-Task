@@ -40,7 +40,7 @@ if (intro) {
   light.className = "aura-pointer-light";
   aura.appendChild(field);
   aura.appendChild(light);
-  intro.prepend(aura);
+  document.body.prepend(aura);
 
   const canAnimate = () => finePointer.matches && !reducedMotion.matches;
   const clamp = (value) => Math.min(1, Math.max(0, value));
@@ -140,4 +140,72 @@ if (intro) {
   window.addEventListener("blur", resetAll);
   document.addEventListener("visibilitychange", syncAura);
   syncAura();
+}
+
+// Keep the native dialog's focus handling while allowing its exit to finish.
+const motionDialog = document.getElementById("transactionsDialog");
+
+if (motionDialog) {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let closing = false;
+  let closeTimer = null;
+  let pendingReturnValue = "";
+
+  function cleanUpClose() {
+    if (closeTimer !== null) clearTimeout(closeTimer);
+    closeTimer = null;
+    closing = false;
+    motionDialog.classList.remove("is-closing");
+    motionDialog.style.removeProperty("--modal-exit-opacity");
+    motionDialog.style.removeProperty("--modal-exit-transform");
+    motionDialog.style.removeProperty("--backdrop-exit-opacity");
+  }
+
+  function finishClose() {
+    if (!closing) return;
+    const returnValue = pendingReturnValue;
+    cleanUpClose();
+    if (motionDialog.open) motionDialog.close(returnValue);
+  }
+
+  function requestClose(returnValue = "") {
+    if (!motionDialog.open || closing) return;
+    if (reducedMotion.matches || document.hidden) {
+      motionDialog.close(returnValue);
+      return;
+    }
+
+    // Start from the current frame, even when closing halfway through entry.
+    const current = window.getComputedStyle(motionDialog);
+    const backdrop = window.getComputedStyle(motionDialog, "::backdrop");
+    motionDialog.style.setProperty("--modal-exit-opacity", current.opacity);
+    motionDialog.style.setProperty("--modal-exit-transform", current.transform);
+    motionDialog.style.setProperty("--backdrop-exit-opacity", backdrop.opacity);
+    pendingReturnValue = returnValue;
+    closing = true;
+    motionDialog.classList.add("is-closing");
+    // Also finish if an animation event is interrupted or unavailable.
+    closeTimer = setTimeout(finishClose, 600);
+  }
+
+  motionDialog.querySelector(".dialog-dismiss")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    requestClose(event.submitter?.value ?? "");
+  });
+  motionDialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    requestClose();
+  });
+  motionDialog.addEventListener("animationend", (event) => {
+    if (event.target === motionDialog && event.animationName === "modal-dismiss") {
+      finishClose();
+    }
+  });
+  motionDialog.addEventListener("close", cleanUpClose);
+  reducedMotion.addEventListener("change", () => {
+    if (reducedMotion.matches) finishClose();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) finishClose();
+  });
 }
