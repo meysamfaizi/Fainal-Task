@@ -1,5 +1,7 @@
-const DATA_URL = import.meta.env?.BASE_URL
-  ? `${import.meta.env.BASE_URL}data/db.json`
+const BASE = import.meta.env?.BASE_URL;
+// Live Server serves the source without Vite's import.meta.env replacement.
+const DATA_URL = BASE
+  ? `${BASE}data/db.json`
   : new URL("../../public/data/db.json", import.meta.url).href;
 
 const loadBtn = document.getElementById("loadBtn");

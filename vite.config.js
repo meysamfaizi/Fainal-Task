@@ -1,5 +1,11 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: "/Panhar-Task/",
+  base: "/T04-Meysam-Faizi/",
+  root: "src",
+  publicDir: "../public",
+  build: {
+    outDir: "../dist",
+    emptyOutDir: true,
+  },
 });

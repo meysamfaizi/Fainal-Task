@@ -4,7 +4,7 @@ A polished, responsive Persian-language dashboard for viewing and managing finan
 
 ## Live Demo
 
-[View Panhar Task on GitHub Pages](https://meysamfaizi.github.io/Panhar-Task/)
+[View Panhar Task on GitHub Pages](https://meysamfaizi.github.io/T04-Meysam-Faizi/)
 
 ## Features
 
@@ -35,8 +35,8 @@ Requirements:
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/meysamfaizi/Panhar-Task.git
-cd Panhar-Task
+git clone https://github.com/meysamfaizi/T04-Meysam-Faizi.git
+cd T04-Meysam-Faizi
 npm install
 ```
 
@@ -70,9 +70,9 @@ npm run preview
 ├── assets/fonts/
 ├── public/data/db.json
 ├── src/
+│   ├── index.html
 │   ├── js/index.js
 │   └── styles/
-├── index.html
 ├── vite.config.js
 └── package.json
 ```
@@ -82,3 +82,29 @@ npm run preview
 Every push to the `main` branch runs the GitHub Actions workflow, builds the app into `dist`, and publishes that artifact to GitHub Pages.
 
 In the repository settings, set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**.
+
+Publish the built `dist` artifact, not the source directory or source `index.html`.
+The Vite base for this repository is `/T04-Meysam-Faizi/`. This project uses HTML and
+JavaScript; it does not require the React plugin, `homepage`, or `gh-pages`.
+
+For a clean local build and preview:
+
+```powershell
+npm ci
+npm run build:clean
+npm run preview
+```
+
+Open the preview under `/T04-Meysam-Faizi/`. `build:clean` empties `dist` before building.
+In Chrome DevTools, open Network, enable Disable cache, then reload. Select a
+failed CSS or JS request and inspect Headers → Request URL and the Initiator tab.
+Production CSS and JS URLs should start with `/T04-Meysam-Faizi/assets/`. A request
+for `/src/` means source HTML was published instead of the built artifact.
+
+Keep CSS `url(...)` paths relative to their stylesheet so Vite can bundle them.
+Import source images from JavaScript rather than using literal `/src/...` URLs.
+For runtime URLs to files in `public`, use `import.meta.env.BASE_URL`, for example
+`${import.meta.env.BASE_URL}data/db.json`.
+
+For Live Server, open `src/index.html`. The source JavaScript falls back to
+`public/data/db.json` when Vite's environment values are unavailable.
