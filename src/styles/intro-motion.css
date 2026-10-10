@@ -152,7 +152,7 @@
   filter: drop-shadow(0 0 18px hsl(var(--intro-hue) 95% 70% / 18%));
 }
 
-@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
   .page-intro .intro-scene,
   .intro-scene .intro-icon,
   .intro-scene .intro-icon svg,
@@ -322,13 +322,31 @@ body:has(#transactionsDialog[open]) .intro-aura {
   opacity: 0.3;
 }
 
-@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
   .intro-aura {
     display: none;
   }
 
   .intro-aura * {
     animation: none;
+  }
+}
+
+/* Phones have no hover: keep the colors visible and let a touch add motion. */
+@media (hover: none), (pointer: coarse) {
+  .page-content {
+    overflow-x: clip;
+  }
+
+  .page-intro .intro-scene::before,
+  .page-intro .intro-scene::after,
+  .page-intro .intro-icon::before,
+  .page-intro .intro-icon::after {
+    opacity: 1;
+  }
+
+  .page-intro .intro-title {
+    color: transparent;
   }
 }
 

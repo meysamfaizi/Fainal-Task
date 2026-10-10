@@ -7,6 +7,7 @@ if (intro) {
   let frame = null;
   let pointerX = 0;
   let pointerY = 0;
+  let tiltFactor = 1;
   let auraFrame = null;
   let auraPointerX = 0;
   let auraPointerY = 0;
@@ -42,7 +43,7 @@ if (intro) {
   aura.appendChild(light);
   document.body.prepend(aura);
 
-  const canAnimate = () => finePointer.matches && !reducedMotion.matches;
+  const canAnimate = () => !reducedMotion.matches;
   const clamp = (value) => Math.min(1, Math.max(0, value));
 
   function paint() {
@@ -57,15 +58,16 @@ if (intro) {
 
     intro.style.setProperty("--intro-x", `${(x * 100).toFixed(2)}%`);
     intro.style.setProperty("--intro-y", `${(y * 100).toFixed(2)}%`);
-    intro.style.setProperty("--intro-rx", `${((0.5 - y) * 9).toFixed(2)}deg`);
-    intro.style.setProperty("--intro-ry", `${((x - 0.5) * 12).toFixed(2)}deg`);
+    intro.style.setProperty("--intro-rx", `${((0.5 - y) * 9 * tiltFactor).toFixed(2)}deg`);
+    intro.style.setProperty("--intro-ry", `${((x - 0.5) * 12 * tiltFactor).toFixed(2)}deg`);
     intro.style.setProperty("--intro-icon-angle", `${((x - 0.5) * -8).toFixed(2)}deg`);
     intro.style.setProperty("--intro-orbit-angle", `${(-25 + x * 50).toFixed(2)}deg`);
     intro.style.setProperty("--intro-hue", (195 + x * 65).toFixed(2));
   }
 
   function move(event) {
-    if (event.pointerType === "touch" || !canAnimate()) return;
+    if (!canAnimate()) return;
+    tiltFactor = event.pointerType === "touch" ? 0.45 : 1;
     intro.classList.add("is-active");
     pointerX = event.clientX;
     pointerY = event.clientY;
@@ -113,7 +115,7 @@ if (intro) {
   }
 
   function moveAura(event) {
-    if (event.pointerType === "touch" || !canAnimate() || document.hidden) return;
+    if (!canAnimate() || document.hidden) return;
     auraPointerX = event.clientX;
     auraPointerY = event.clientY;
     if (auraFrame === null) auraFrame = requestAnimationFrame(paintAura);
@@ -130,10 +132,17 @@ if (intro) {
   }
 
   intro.addEventListener("pointerenter", move, { passive: true });
+  intro.addEventListener("pointerdown", move, { passive: true });
   intro.addEventListener("pointermove", move, { passive: true });
   intro.addEventListener("pointerleave", reset);
   intro.addEventListener("pointercancel", reset);
   window.addEventListener("pointermove", moveAura, { passive: true });
+  window.addEventListener("pointerdown", moveAura, { passive: true });
+  // Passive touch tracking keeps native scrolling and button taps intact.
+  window.addEventListener("pointerup", (event) => {
+    if (event.pointerType === "touch") resetAll();
+  }, { passive: true });
+  window.addEventListener("pointercancel", resetAll, { passive: true });
   document.addEventListener("pointerleave", resetAll);
   finePointer.addEventListener("change", syncAura);
   reducedMotion.addEventListener("change", syncAura);
