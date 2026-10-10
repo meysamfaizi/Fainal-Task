@@ -1,0 +1,171 @@
+/* Only the introduction responds to the pointer; its layout stays unchanged. */
+.page-intro {
+  --intro-x: 50%;
+  --intro-y: 35%;
+  --intro-rx: 0deg;
+  --intro-ry: 0deg;
+  --intro-icon-angle: 0deg;
+  --intro-orbit-angle: -25deg;
+  --intro-hue: 215;
+  --intro-lift: 0px;
+  position: relative;
+  perspective: 1000px;
+}
+
+.intro-scene {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--intro-rx)) rotateY(var(--intro-ry))
+    translateY(var(--intro-lift));
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intro-scene::before,
+.intro-scene::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 650ms ease;
+}
+
+/* A soft aurora sits behind the floating glass surface. */
+.intro-scene::before {
+  inset: -72px -52px;
+  z-index: -2;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at var(--intro-x) var(--intro-y),
+      hsl(var(--intro-hue) 95% 60% / 38%), transparent 62%),
+    radial-gradient(ellipse at 20% 70%, hsl(175 85% 55% / 15%), transparent 55%),
+    radial-gradient(ellipse at 85% 20%, hsl(275 90% 65% / 20%), transparent 55%);
+  filter: blur(32px);
+  transform: translateZ(-60px);
+}
+
+.intro-scene::after {
+  inset: -30px -24px;
+  z-index: -1;
+  border: 1px solid hsl(var(--intro-hue) 90% 76% / 22%);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at var(--intro-x) var(--intro-y),
+      hsl(var(--intro-hue) 90% 80% / 10%), transparent 65%),
+    linear-gradient(135deg, hsl(215 70% 85% / 5%), hsl(230 60% 12% / 20%));
+  box-shadow: inset 0 1px 0 hsl(210 90% 90% / 12%),
+    0 32px 80px hsl(230 70% 3% / 28%);
+  transform: translateZ(-28px);
+}
+
+.intro-scene .intro-icon {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: translateZ(56px) rotateZ(var(--intro-icon-angle));
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 450ms ease, border-color 450ms ease, box-shadow 650ms ease;
+}
+
+.intro-scene .intro-icon::before,
+.intro-scene .intro-icon::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 650ms ease, transform 450ms ease;
+}
+
+/* The tilted orbit and raised glyph make the icon read as a 3D object. */
+.intro-scene .intro-icon::before {
+  inset: -24px;
+  border: 1px solid hsl(var(--intro-hue) 95% 75% / 65%);
+  border-inline-start-color: hsl(175 95% 75% / 90%);
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  box-shadow: 0 0 18px hsl(var(--intro-hue) 95% 65% / 16%);
+  transform: rotateZ(var(--intro-orbit-angle)) rotateX(68deg);
+}
+
+.intro-scene .intro-icon::after {
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--intro-x) var(--intro-y),
+    hsl(190 95% 85% / 25%), transparent 75%);
+  transform: translateZ(1px);
+}
+
+.intro-scene .intro-icon svg {
+  transform: translateZ(22px);
+  transition: filter 450ms ease;
+}
+
+.intro-scene .intro-eyebrow {
+  transform: translateZ(24px);
+  transition: color 450ms ease;
+}
+
+.intro-scene .intro-title {
+  transform: translateZ(38px);
+  background-image: linear-gradient(110deg, hsl(175 90% 80%),
+    hsl(var(--intro-hue) 95% 80%) 45%, hsl(275 90% 85%));
+  background-clip: text;
+  -webkit-background-clip: text;
+  transition: color 450ms ease, filter 450ms ease;
+}
+
+.intro-scene .intro-description {
+  transform: translateZ(16px);
+}
+
+.page-intro.is-active {
+  --intro-lift: -6px;
+}
+
+.page-intro.is-active .intro-scene {
+  transition-duration: 160ms;
+}
+
+.page-intro.is-active .intro-scene::before,
+.page-intro.is-active .intro-scene::after,
+.page-intro.is-active .intro-icon::before,
+.page-intro.is-active .intro-icon::after {
+  opacity: 1;
+}
+
+.page-intro.is-active .intro-icon {
+  color: hsl(var(--intro-hue) 95% 78%);
+  border-color: hsl(var(--intro-hue) 95% 75% / 60%);
+  box-shadow: inset 0 1px 0 hsl(190 90% 90% / 18%),
+    0 16px 44px hsl(var(--intro-hue) 95% 55% / 22%),
+    0 0 40px hsl(175 90% 55% / 10%);
+}
+
+.page-intro.is-active .intro-icon svg {
+  filter: drop-shadow(0 0 7px hsl(var(--intro-hue) 95% 75% / 65%));
+}
+
+.page-intro.is-active .intro-eyebrow {
+  color: hsl(190 75% 78%);
+}
+
+.page-intro.is-active .intro-title {
+  color: transparent;
+  filter: drop-shadow(0 0 18px hsl(var(--intro-hue) 95% 70% / 18%));
+}
+
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .page-intro .intro-scene,
+  .intro-scene .intro-icon,
+  .intro-scene .intro-icon svg,
+  .intro-scene .intro-eyebrow,
+  .intro-scene .intro-title,
+  .intro-scene .intro-description {
+    transform: none;
+  }
+
+  .intro-scene::before,
+  .intro-scene::after,
+  .intro-scene .intro-icon::before,
+  .intro-scene .intro-icon::after {
+    display: none;
+  }
+}
