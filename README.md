@@ -1,3 +1,5 @@
+[English](README.md) | [فارسی](README.fa.md)
+
 # Panhar Task — Financial Transactions Dashboard
 
 A polished, responsive Persian-language dashboard for viewing and managing financial transactions. The project uses Vite for fast local development and optimized production builds, and deploys automatically to GitHub Pages.
